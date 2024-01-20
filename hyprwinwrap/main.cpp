@@ -120,6 +120,33 @@ void onConfigReloaded() {
     g_pConfigManager->parseKeyword("windowrulev2", "size 100\% 100\%, class:^(" + *PCLASS + ")$", true);
 }
 
+void dispatch_togglewrap(std::string arg) {
+    CWindow* pWindow = g_pCompositor->m_pLastWindow;
+
+    const auto PMONITOR = g_pCompositor->getMonitorFromID(pWindow->m_iMonitorID);
+    if (!PMONITOR)
+      return;
+
+    pWindow->m_vRealSize.setValueAndWarp(PMONITOR->vecSize);
+    pWindow->m_vRealPosition.setValueAndWarp(PMONITOR->vecPosition);
+    pWindow->m_vSize     = PMONITOR->vecSize;
+    pWindow->m_vPosition = PMONITOR->vecPosition;
+    pWindow->m_bPinned   = true;
+    g_pXWaylandManager->setWindowSize(pWindow, pWindow->m_vRealSize.goalv(), true);
+
+    bgWindows.push_back(pWindow);
+
+    pWindow->setHidden(true); // so that hl doesn't render this
+
+    g_pInputManager->refocus();
+
+    Debug::log(LOG, "[hyprwinwrap] new window moved to bg {}", pWindow);
+}
+
+void registerDispatchers() {
+  HyprlandAPI::addDispatcher(PHANDLE, "hyprwinwrap:togglewrap", dispatch_togglewrap);
+}
+
 APICALL EXPORT PLUGIN_DESCRIPTION_INFO PLUGIN_INIT(HANDLE handle) {
     PHANDLE = handle;
 
