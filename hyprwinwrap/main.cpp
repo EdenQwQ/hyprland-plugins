@@ -31,17 +31,23 @@ std::vector<CWindow*> bgWindows;
 //
 void setWindowBG(CWindow* pWindow) {
     const auto PMONITOR = g_pCompositor->getMonitorFromID(pWindow->m_iMonitorID);
+
     if (!PMONITOR)
         return;
+
     pWindow->m_vRealSize.setValueAndWarp(PMONITOR->vecSize);
     pWindow->m_vRealPosition.setValueAndWarp(PMONITOR->vecPosition);
     pWindow->m_vSize     = PMONITOR->vecSize;
     pWindow->m_vPosition = PMONITOR->vecPosition;
     pWindow->m_bPinned   = true;
     g_pXWaylandManager->setWindowSize(pWindow, pWindow->m_vRealSize.goalv(), true);
+
     bgWindows.push_back(pWindow);
+
     pWindow->setHidden(true); // so that hl doesn't render this
+
     g_pInputManager->refocus();
+
     Debug::log(LOG, "[hyprwinwrap] new window moved to bg {}", pWindow);
 }
 
@@ -123,23 +129,16 @@ void onConfigReloaded() {
     g_pConfigManager->parseKeyword("windowrulev2", "size 100\% 100\%, class:^(" + *PCLASS + ")$", true);
 }
 
-void dispatch_setbg(std::string arg) {
+void dispatch_setbg(std::string args) {
     CWindow* pWindow = g_pCompositor->m_pLastWindow;
     if (!pWindow)
         return;
     setWindowBG(pWindow);
 }
 
-void dispatch_unsetbg(std::string arg) {
-    CWindow* pWindow = nullptr;
-    if (arg.empty()) {
-        pWindow = bgWindows.back();
-    } else {
-        const auto PWINDOW = g_pCompositor->getWindowByRegex(arg);
-        HyprlandAPI::addNotification(PHANDLE, std::format("0x{:x}", (uintptr_t)PWINDOW),
-                                     CColor{1.0, 0.2, 0.2, 1.0}, 5000);
-    }
-    if (!pWindow || std::find(bgWindows.begin(), bgWindows.end(), pWindow) == bgWindows.end())
+void dispatch_unsetbg(std::string args) {
+    CWindow* pWindow = bgWindows.back();
+    if (!pWindow)
         return;
     unsetWindowBG(pWindow);
 }
