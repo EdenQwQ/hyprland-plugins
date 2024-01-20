@@ -130,11 +130,12 @@ void dispatch_setbg(std::string arg) {
 }
 
 void dispatch_unsetbg(std::string arg) {
+    CWindow* pWindow = nullptr;
     if (!arg) {
-        CWindow* pWindow = bgWindows.back();
+        pWindow = bgWindows.back();
     } else {
-        CWindow* pWindow = g_pCompositor->getWindowByRegex(arg);
-        if (std::find(bgWindows.begin(), bgWindows.end(), pWindow) == bgWindows.end())
+        pWindow = g_pCompositor->getWindowByRegex(arg);
+        if (!pWindow || std::find(bgWindows.begin(), bgWindows.end(), pWindow) == bgWindows.end())
             return;
     }
     unsetWindowBG(pWindow);
