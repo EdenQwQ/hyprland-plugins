@@ -49,6 +49,7 @@ void unsetWindowBG(CWindow* pWindow) {
     std::erase(bgWindows, pWindow);
     pWindow->m_bPinned = false;
     pWindow->setHidden(false);
+    g_pInputManager->refocus();
     Debug::log(LOG, "[hyprwinwrap] window removed from bg {}", pWindow);
 }
 
