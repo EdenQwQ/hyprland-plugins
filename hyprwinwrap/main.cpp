@@ -143,10 +143,6 @@ void dispatch_togglewrap(std::string arg) {
     Debug::log(LOG, "[hyprwinwrap] new window moved to bg {}", pWindow);
 }
 
-void registerDispatchers() {
-  HyprlandAPI::addDispatcher(PHANDLE, "hyprwinwrap:togglewrap", dispatch_togglewrap);
-}
-
 APICALL EXPORT PLUGIN_DESCRIPTION_INFO PLUGIN_INIT(HANDLE handle) {
     PHANDLE = handle;
 
@@ -182,6 +178,8 @@ APICALL EXPORT PLUGIN_DESCRIPTION_INFO PLUGIN_INIT(HANDLE handle) {
     HyprlandAPI::addConfigValue(PHANDLE, "plugin:hyprwinwrap:class", SConfigValue{.strValue = "kitty-bg"});
 
     HyprlandAPI::addNotification(PHANDLE, "[hyprwinwrap] Initialized successfully!", CColor{0.2, 1.0, 0.2, 1.0}, 5000);
+
+    HyprlandAPI::addDispatcher(PHANDLE, "hyprwinwrap:togglewrap", dispatch_togglewrap);
 
     return {"hyprwinwrap", "A clone of xwinwrap for Hyprland", "Vaxry", "1.0"};
 }
