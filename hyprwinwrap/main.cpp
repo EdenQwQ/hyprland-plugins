@@ -131,15 +131,15 @@ void dispatch_setbg(std::string arg) {
 }
 
 void dispatch_unsetbg(std::string arg) {
-    CWindow* pWindow = nullptr;
     if (arg.empty()) {
-        pWindow = bgWindows.back();
+        CWindow* pWindow = bgWindows.back();
+        unsetWindowBG(pWindow);
     } else {
-        pWindow = g_pCompositor->getWindowByRegex(arg);
-        // if (!pWindow || std::find(bgWindows.begin(), bgWindows.end(), pWindow) == bgWindows.end())
-        //     return;
+        const auto PWINDOW = g_pCompositor->getWindowByRegex(arg);
+        if (!PWINDOW || std::find(bgWindows.begin(), bgWindows.end(), PWINDOW) == bgWindows.end())
+            return;
+        unsetWindowBG(PWINDOW);
     }
-    unsetWindowBG(pWindow);
 }
 
 APICALL EXPORT PLUGIN_DESCRIPTION_INFO PLUGIN_INIT(HANDLE handle) {
