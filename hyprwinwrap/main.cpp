@@ -136,7 +136,7 @@ void dispatch_unsetbg(std::string arg) {
         pWindow = bgWindows.back();
     } else {
         pWindow = g_pCompositor->getWindowByRegex(arg);
-        HyprlandAPI::addNotification(PHANDLE, "arg",
+        HyprlandAPI::addNotification(PHANDLE, arg,
                                      CColor{1.0, 0.2, 0.2, 1.0}, 5000);
         if (!pWindow || std::find(bgWindows.begin(), bgWindows.end(), pWindow) == bgWindows.end())
             return;
