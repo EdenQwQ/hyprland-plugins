@@ -44,6 +44,14 @@ void setWindowBG(CWindow* pWindow) {
     g_pInputManager->refocus();
     Debug::log(LOG, "[hyprwinwrap] new window moved to bg {}", pWindow);
 }
+
+void unsetWindowBG(CWindow* pWindow) {
+    std::erase(bgWindows, pWindow);
+    pWindow->m_bPinned = false;
+    pWindow->setHidden(false);
+    Debug::log(LOG, "[hyprwinwrap] window removed from bg {}", pWindow);
+}
+
 void onNewWindow(CWindow* pWindow) {
     static auto* const PCLASS = &HyprlandAPI::getConfigValue(PHANDLE, "plugin:hyprwinwrap:class")->strValue;
 
@@ -119,6 +127,17 @@ void dispatch_setbg(std::string arg) {
     if (!pWindow)
         return;
     setWindowBG(pWindow);
+}
+
+void dispatch_unsetbg(std::string arg) {
+    if (!arg) {
+        CWindow* pWindow = bgWindows.back();
+    } else {
+        CWindow* pWindow = g_pCompositor->getWindowByRegex(arg);
+        if (std::find(bgWindows.begin(), bgWindows.end(), pWindow) == bgWindows.end())
+            return;
+    }
+    unsetWindowBG(pWindow);
 }
 
 APICALL EXPORT PLUGIN_DESCRIPTION_INFO PLUGIN_INIT(HANDLE handle) {
