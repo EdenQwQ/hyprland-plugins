@@ -29,34 +29,28 @@ typedef void (*origCommit)(void* owner, void* data);
 std::vector<CWindow*> bgWindows;
 
 //
-void onNewWindow(CWindow* pWindow) {
-    static auto* const PCLASS = &HyprlandAPI::getConfigValue(PHANDLE, "plugin:hyprwinwrap:class")->strValue;
-
-    if (pWindow->m_szInitialClass != *PCLASS)
-        return;
-
+void setWindowBG(CWindow* pWindow) {
     const auto PMONITOR = g_pCompositor->getMonitorFromID(pWindow->m_iMonitorID);
-
     if (!PMONITOR)
         return;
-
-    if (!pWindow->m_bIsFloating)
-        g_pLayoutManager->getCurrentLayout()->changeWindowFloatingMode(pWindow);
-
     pWindow->m_vRealSize.setValueAndWarp(PMONITOR->vecSize);
     pWindow->m_vRealPosition.setValueAndWarp(PMONITOR->vecPosition);
     pWindow->m_vSize     = PMONITOR->vecSize;
     pWindow->m_vPosition = PMONITOR->vecPosition;
     pWindow->m_bPinned   = true;
     g_pXWaylandManager->setWindowSize(pWindow, pWindow->m_vRealSize.goalv(), true);
-
     bgWindows.push_back(pWindow);
-
     pWindow->setHidden(true); // so that hl doesn't render this
-
     g_pInputManager->refocus();
-
     Debug::log(LOG, "[hyprwinwrap] new window moved to bg {}", pWindow);
+}
+void onNewWindow(CWindow* pWindow) {
+    static auto* const PCLASS = &HyprlandAPI::getConfigValue(PHANDLE, "plugin:hyprwinwrap:class")->strValue;
+
+    if (pWindow->m_szInitialClass != *PCLASS)
+        return;
+
+    setWindowBG(pWindow);
 }
 
 void onCloseWindow(CWindow* pWindow) {
@@ -120,27 +114,11 @@ void onConfigReloaded() {
     g_pConfigManager->parseKeyword("windowrulev2", "size 100\% 100\%, class:^(" + *PCLASS + ")$", true);
 }
 
-void dispatch_togglewrap(std::string arg) {
+void dispatch_setbg(std::string arg) {
     CWindow* pWindow = g_pCompositor->m_pLastWindow;
-
-    const auto PMONITOR = g_pCompositor->getMonitorFromID(pWindow->m_iMonitorID);
-    if (!PMONITOR)
-      return;
-
-    pWindow->m_vRealSize.setValueAndWarp(PMONITOR->vecSize);
-    pWindow->m_vRealPosition.setValueAndWarp(PMONITOR->vecPosition);
-    pWindow->m_vSize     = PMONITOR->vecSize;
-    pWindow->m_vPosition = PMONITOR->vecPosition;
-    pWindow->m_bPinned   = true;
-    g_pXWaylandManager->setWindowSize(pWindow, pWindow->m_vRealSize.goalv(), true);
-
-    bgWindows.push_back(pWindow);
-
-    pWindow->setHidden(true); // so that hl doesn't render this
-
-    g_pInputManager->refocus();
-
-    Debug::log(LOG, "[hyprwinwrap] new window moved to bg {}", pWindow);
+    if (!pWindow)
+        return;
+    setWindowBG(pWindow);
 }
 
 APICALL EXPORT PLUGIN_DESCRIPTION_INFO PLUGIN_INIT(HANDLE handle) {
@@ -179,7 +157,7 @@ APICALL EXPORT PLUGIN_DESCRIPTION_INFO PLUGIN_INIT(HANDLE handle) {
 
     HyprlandAPI::addNotification(PHANDLE, "[hyprwinwrap] Initialized successfully!", CColor{0.2, 1.0, 0.2, 1.0}, 5000);
 
-    HyprlandAPI::addDispatcher(PHANDLE, "hyprwinwrap:togglewrap", dispatch_togglewrap);
+    HyprlandAPI::addDispatcher(PHANDLE, "hyprwinwrap:setbg", dispatch_setbg);
 
     return {"hyprwinwrap", "A clone of xwinwrap for Hyprland", "Vaxry", "1.0"};
 }
