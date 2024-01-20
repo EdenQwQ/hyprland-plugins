@@ -131,15 +131,17 @@ void dispatch_setbg(std::string arg) {
 }
 
 void dispatch_unsetbg(std::string arg) {
+    CWindow* pWindow = nullptr;
     if (arg.empty()) {
-        CWindow* pWindow = bgWindows.back();
-        unsetWindowBG(pWindow);
+        pWindow = bgWindows.back();
     } else {
-        const auto PWINDOW = g_pCompositor->getWindowByRegex(arg);
-        if (!PWINDOW || std::find(bgWindows.begin(), bgWindows.end(), PWINDOW) == bgWindows.end())
-            return;
-        unsetWindowBG(PWINDOW);
+        pWindow = g_pCompositor->getWindowByRegex(arg);
+        HyprlandAPI::addNotification(PHANDLE, pWindow->m_szTitle,
+                                     CColor{1.0, 0.2, 0.2, 1.0}, 5000);
     }
+    if (!pWindow || std::find(bgWindows.begin(), bgWindows.end(), pWindow) == bgWindows.end())
+        return;
+    unsetWindowBG(pWindow);
 }
 
 APICALL EXPORT PLUGIN_DESCRIPTION_INFO PLUGIN_INIT(HANDLE handle) {
