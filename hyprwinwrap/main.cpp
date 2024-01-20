@@ -178,6 +178,7 @@ APICALL EXPORT PLUGIN_DESCRIPTION_INFO PLUGIN_INIT(HANDLE handle) {
     HyprlandAPI::addNotification(PHANDLE, "[hyprwinwrap] Initialized successfully!", CColor{0.2, 1.0, 0.2, 1.0}, 5000);
 
     HyprlandAPI::addDispatcher(PHANDLE, "hyprwinwrap:setbg", dispatch_setbg);
+    HyprlandAPI::addDispatcher(PHANDLE, "hyprwinwrap:unsetbg", dispatch_unsetbg);
 
     return {"hyprwinwrap", "A clone of xwinwrap for Hyprland", "Vaxry", "1.0"};
 }
