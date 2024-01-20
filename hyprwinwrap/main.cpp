@@ -131,7 +131,7 @@ void dispatch_setbg(std::string arg) {
 
 void dispatch_unsetbg(std::string arg) {
     CWindow* pWindow = nullptr;
-    if (!arg) {
+    if (arg.empty()) {
         pWindow = bgWindows.back();
     } else {
         pWindow = g_pCompositor->getWindowByRegex(arg);
